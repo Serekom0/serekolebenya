@@ -2296,3 +2296,11 @@ button[disabled] { opacity: 0.55; cursor: progress; }
 .contact-grid form {
     padding-bottom: 60px;
 }
+.about-portrait-col img {
+    max-width: 320px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 12px;
+}
