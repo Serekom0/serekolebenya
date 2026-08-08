@@ -2293,3 +2293,6 @@ button[disabled] { opacity: 0.55; cursor: progress; }
 
 /* Inter's default figures are lining; old-style suits running prose. */
 .prose, .reader-body { font-variant-numeric: oldstyle-nums; }
+.contact-grid form {
+    padding-bottom: 60px;
+}
