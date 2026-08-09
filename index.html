@@ -882,97 +882,284 @@ const pageMeta = {
   letter:   ['The Story Letter — Sereko Lebenya', 'A personal letter from Sereko, sent when there is something worth saying.'],
   contact:  ['Contact — Sereko Lebenya', 'Speaking enquiries, media requests, book club visits, and reader correspondence.']
 };
+<script>
+/* ── Router ───────────────────────────────────────────────── */
+
+const pageMap = {
+  home: 'homePage',
+  about: 'aboutPage',
+  books: 'booksPage',
+  stories: 'storiesPage',
+  media: 'mediaPage',
+  speaking: 'speakingPage',
+  letter: 'letterPage',
+  contact: 'contactPage',
+  reader: 'readerPage'
+};
+
+const pageMeta = {
+  home: ['Sereko Lebenya — Author',
+    'Sereko Lebenya writes about faith, identity, and the quiet faithfulness of God in an ordinary life.'],
+
+  about: ['About — Sereko Lebenya',
+    'Author and storyteller writing at the intersection of faith, identity, and becoming.'],
+
+  books: ['Books — Sereko Lebenya',
+    'You Are Not Invisible and After Forty: the writing in full.'],
+
+  stories: ['The Becoming Journal — Sereko Lebenya',
+    'A curated archive of reflective literary essays on faith, migration, and becoming.'],
+
+  media: ['Media — Sereko Lebenya',
+    'Interviews, podcast appearances, and recorded talks.'],
+
+  speaking: ['Speaking — Sereko Lebenya',
+    'Sereko Lebenya speaks at conferences, retreats, and literary events.'],
+
+  letter: ['The Story Letter — Sereko Lebenya',
+    'A personal letter from Sereko, sent when there is something worth saying.'],
+
+  contact: ['Contact — Sereko Lebenya',
+    'Speaking enquiries, media requests, book club visits, and reader correspondence.']
+};
 
 const nav = document.getElementById('mainNav');
 const descTag = document.querySelector('meta[name="description"]');
+
 let currentPage = 'home';
+let activeFilter = 'all';
 
 function setMeta(title, description) {
   document.title = title;
-  if (descTag) descTag.setAttribute('content', description);
+
+  if (descTag) {
+    descTag.setAttribute('content', description);
+  }
 }
 
 function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pageId = pageMap[page];
+
+  if (!pageId) {
+    page = 'home';
+  }
+
   const target = document.getElementById(pageMap[page]);
-  if (!target) return false;
+
+  if (!target) {
+    console.error('Page not found:', pageMap[page]);
+    return false;
+  }
+
+  document.querySelectorAll('.page').forEach(section => {
+    section.classList.remove('active');
+  });
+
   target.classList.add('active');
   currentPage = page;
 
-  document.querySelectorAll('.nav__links a').forEach(a => {
-    const on = a.dataset.page === page;
-    a.classList.toggle('active', on);
-    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  document.querySelectorAll('.nav__links a[data-page]').forEach(link => {
+    const active = link.dataset.page === page;
+
+    link.classList.toggle('active', active);
+
+    if (active) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
   });
 
-  nav.classList.toggle('hero-mode', page === 'home');
-  if (page !== 'home') nav.classList.add('scrolled');
+  if (nav) {
+    nav.classList.toggle('hero-mode', page === 'home');
+
+    if (page !== 'home') {
+      nav.classList.add('scrolled');
+    }
+  }
+
   return true;
 }
 
-/* Hash routes keep every page and every essay linkable, bookmarkable
-   and shareable, and make the browser's back button work — without
-   needing server-side rewrites on whatever host you publish to. */
 function routeFromHash() {
-  const path = (location.hash || '#/').replace(/^#\/?/, '').replace(/\/$/, '');
+  let path = (window.location.hash || '#/')
+    .replace(/^#\/?/, '')
+    .replace(/\/$/, '');
 
+  /* Essay reader */
   if (path.startsWith('essays/')) {
-    const essay = essays.find(e => e.slug === path.slice(7));
-    if (essay) { openStory(essay); return; }
+    const slug = path.substring(7);
+    const essay = essays.find(item => item.slug === slug);
+
+    if (essay) {
+      openStory(essay);
+      return;
+    }
+
+    path = 'stories';
   }
 
-  const page = pageMap[path] ? path : 'home';
-  showPage(page);
-  const [title, description] = pageMeta[page];
-  setMeta(title, description);
-  if (page === 'stories') renderEssays(activeFilter);
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  closeMobile();
+  /* Normal pages */
+  if (!pageMap[path]) {
+    path = 'home';
+  }
+
+  if (!showPage(path)) {
+    return;
+  }
+
+  if (pageMeta[path]) {
+    setMeta(pageMeta[path][0], pageMeta[path][1]);
+  }
+
+  if (path === 'stories') {
+    renderEssays(activeFilter);
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'instant'
+  });
+
+  if (typeof closeMobile === 'function') {
+    closeMobile();
+  }
 }
 
 function openStory(essay) {
-  document.getElementById('rChapter').textContent = essay.pillar;
-  document.getElementById('rTitle').textContent   = essay.title;
-  document.getElementById('rLede').textContent    = essay.lede;
-  document.getElementById('rMeta').textContent    = essay.readTime;
-  document.getElementById('rBody').innerHTML      = essay.body;
+  if (!essay) {
+    routeTo('stories');
+    return;
+  }
+
+  const chapter = document.getElementById('rChapter');
+  const title = document.getElementById('rTitle');
+  const lede = document.getElementById('rLede');
+  const meta = document.getElementById('rMeta');
+  const body = document.getElementById('rBody');
+
+  if (!chapter || !title || !lede || !meta || !body) {
+    console.error('Reader elements missing.');
+    return;
+  }
+
+  chapter.textContent = essay.pillar;
+  title.textContent = essay.title;
+  lede.textContent = essay.lede;
+  meta.textContent = essay.readTime;
+  body.innerHTML = essay.body;
+
   showPage('reader');
-  setMeta(essay.title + ' — Sereko Lebenya', essay.lede);
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  closeMobile();
+
+  setMeta(
+    essay.title + ' — Sereko Lebenya',
+    essay.lede
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'instant'
+  });
+
+  if (typeof closeMobile === 'function') {
+    closeMobile();
+  }
 }
 
+function routeTo(path) {
+  const cleanPath = String(path || '')
+    .replace(/^#\/?/, '')
+    .replace(/^\/+|\/+$/g, '');
+
+  const hash = cleanPath
+    ? '#/' + cleanPath
+    : '#/';
+
+  if (window.location.hash === hash) {
+    routeFromHash();
+  } else {
+    window.location.hash = hash;
+  }
+}
+
+/* ── Navigation click handling ───────────────────────────── */
+
+document.addEventListener('click', function(event) {
+  const link = event.target.closest('a[href]');
+
+  if (!link) return;
+
+  const href = link.getAttribute('href');
+
+  if (!href || !href.startsWith('#/')) {
+    return;
+  }
+
+  event.preventDefault();
+
+  routeTo(href);
+});
+
+/* Browser back / forward */
 window.addEventListener('hashchange', routeFromHash);
 
-/* ── Essay list ───────────────────────────────────────────── */
-const esc = str => str.replace(/[&<>"]/g, c =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-let activeFilter = 'all';
+/* ── Essay list ───────────────────────────────────────────── */
+
+const esc = str => String(str).replace(/[&<>"]/g, character => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;'
+}[character]));
 
 function renderEssays(filter = 'all') {
   activeFilter = filter;
-  const list = document.getElementById('essayList');
-  if (!list) return;
-  const filtered = filter === 'all' ? essays : essays.filter(e => e.pillar === filter);
 
-  list.innerHTML = filtered.map((e, i) => `
-    <a class="essay-entry" href="#/essays/${e.slug}">
-      <span class="essay-entry__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+  const list = document.getElementById('essayList');
+
+  if (!list) {
+    return;
+  }
+
+  const filtered = filter === 'all'
+    ? essays
+    : essays.filter(essay => essay.pillar === filter);
+
+  list.innerHTML = filtered.map((essay, index) => `
+    <a class="essay-entry" href="#/essays/${essay.slug}">
+      <span class="essay-entry__num" aria-hidden="true">
+        ${String(index + 1).padStart(2, '0')}
+      </span>
+
       <span class="essay-entry__body">
-        <span class="essay-entry__pillar">${esc(e.pillar)}</span>
-        <span class="essay-entry__title">${esc(e.title)}</span>
-        <span class="essay-entry__lede">${esc(e.lede)}</span>
-        <span class="essay-entry__meta">${esc(e.readTime)}</span>
+        <span class="essay-entry__pillar">
+          ${esc(essay.pillar)}
+        </span>
+
+        <span class="essay-entry__title">
+          ${esc(essay.title)}
+        </span>
+
+        <span class="essay-entry__lede">
+          ${esc(essay.lede)}
+        </span>
+
+        <span class="essay-entry__meta">
+          ${esc(essay.readTime)}
+        </span>
       </span>
     </a>
   `).join('');
-  }
+}
+
 function filterPillar(pillar) {
   renderEssays(pillar);
 }
 
-/* ── Forms ────────────────────────────────────────────────── */
+/* ── Initial page ──────────────────────────────────────────── */
+
+routeFromHash();
 function setStatus(form, message, kind) {
   const el = form.querySelector('.form-status');
   if (!el) return;
