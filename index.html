@@ -955,6 +955,7 @@ function renderEssays(filter = 'all') {
   const list = document.getElementById('essayList');
   if (!list) return;
   const filtered = filter === 'all' ? essays : essays.filter(e => e.pillar === filter);
+
   list.innerHTML = filtered.map((e, i) => `
     <a class="essay-entry" href="#/essays/${e.slug}">
       <span class="essay-entry__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
@@ -966,13 +967,6 @@ function renderEssays(filter = 'all') {
       </span>
     </a>
   `).join('');
-  document.querySelectorAll('.pillar-filter').forEach(b => {
-    const on = b.dataset.pillar === filter;
-    b.classList.toggle('active-filter', on);
-    b.setAttribute('aria-pressed', String(on));
-  });
-}
-
 function filterPillar(pillar) {
   renderEssays(pillar);
 }
