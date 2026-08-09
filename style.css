@@ -1449,7 +1449,6 @@ p + p { margin-top: 1.2em; }
     display: block;
     object-fit: contain;
 }
-}
 
 .about-bio {
   display: grid;
