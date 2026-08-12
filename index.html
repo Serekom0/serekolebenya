@@ -840,47 +840,6 @@ const pageMeta = {
   letter:   ['The Story Letter — Sereko Lebenya', 'A personal letter from Sereko, sent when there is something worth saying.'],
   contact:  ['Contact — Sereko Lebenya', 'Speaking enquiries, media requests, book club visits, and reader correspondence.']
 };
-<script>
-/* ── Router ───────────────────────────────────────────────── */
-
-const pageMap = {
-  home: 'homePage',
-  about: 'aboutPage',
-  books: 'booksPage',
-  stories: 'storiesPage',
-  media: 'mediaPage',
-  speaking: 'speakingPage',
-  letter: 'letterPage',
-  contact: 'contactPage',
-  reader: 'readerPage'
-};
-
-const pageMeta = {
-  home: ['Sereko Lebenya — Author',
-    'Sereko Lebenya writes about faith, identity, and the quiet faithfulness of God in an ordinary life.'],
-
-  about: ['About — Sereko Lebenya',
-    'Author and storyteller writing at the intersection of faith, identity, and becoming.'],
-
-  books: ['Books — Sereko Lebenya',
-    'You Are Not Invisible and After Forty: the writing in full.'],
-
-  stories: ['The Becoming Journal — Sereko Lebenya',
-    'A curated archive of reflective literary essays on faith, migration, and becoming.'],
-
-  media: ['Media — Sereko Lebenya',
-    'Interviews, podcast appearances, and recorded talks.'],
-
-  speaking: ['Speaking — Sereko Lebenya',
-    'Sereko Lebenya speaks at conferences, retreats, and literary events.'],
-
-  letter: ['The Story Letter — Sereko Lebenya',
-    'A personal letter from Sereko, sent when there is something worth saying.'],
-
-  contact: ['Contact — Sereko Lebenya',
-    'Speaking enquiries, media requests, book club visits, and reader correspondence.']
-};
-
 const nav = document.getElementById('mainNav');
 const descTag = document.querySelector('meta[name="description"]');
 
@@ -1158,9 +1117,7 @@ async function handleNewsletter(event) {
   } finally {
     button.disabled = false;
     button.textContent = original;
-  }
 }
-
 async function handleContact(event) {
   event.preventDefault();
   const form = event.target;
